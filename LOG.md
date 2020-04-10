@@ -2,6 +2,13 @@
 
 Here, I'll try to keep a journal of what I'm doing on the cluster to help my poor aging failing memory :P. I won't write everything in there tho, the git history and the *READMEs* are there for this reason! :)
 
+## Between [2020 Mar 24] and [2020 Apr 10]
+As you can guess, I started writing this log on Apr 10th
+
+### Helm
+I installed _helm 3_ on _k8s-master_, see [README.md](./helm/README.md)
+
+
 ## [2020 Mar 23]
 The birth of the cluster!
 
@@ -53,9 +60,3 @@ $ sudo swapon --summary
 ```
 $ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 ```
-
-## Between [2020 Mar 24] and [2020 Apr 10]
-As you can guess, I started writing this log on Apr 10th
-
-### Helm
-I installed _helm 3_ on _k8s-master_, see [README.md](./helm/README.md)
