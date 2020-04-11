@@ -1,0 +1,107 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cadvisor
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: scollector
+  labels:
+    app: scollector
+spec:
+  selector:
+    matchLabels:
+      name: scollector 
+  template:
+    metadata:
+      labels:
+        name: scollector
+    spec:
+      hostNetwork: true
+      tolerations:
+      # this toleration is to have the daemonset runnable on master nodes
+      # remove it if your masters can't run pods
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      automountServiceAccountToken: false
+      containers:
+        - name: scollector
+          #image: rohit01/scollector
+          image: sylvaintremblay/scollector-multiarch
+          #image: sylvaintremblay/scollector
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          env:
+          - name: "SC_CONF_Host"
+            #value: "opentsdb-opentsdb:4242"
+            value: "localhost:30666"
+          - name: "APPEND_CONTENT"
+            value: >
+              [[Cadvisor]]
+                URL = "http://localhost:8080"
+              
+              #Override tags for Kubernetes containers
+
+              [[TagOverride]]
+                CollectorExpr = "cadvisor"
+                [TagOverride.MatchedTags]
+                  docker_name = 'k8s_(?P<container_name>[^_]+)_(?P<pod_name>[^_]+)_(?P<namespace>[^_]+)_.*' 
+                  docker_id = '^(?P<docker_id>.{12})'
+                [TagOverride.Tags]
+                  docker_name = ''
+                  name = ''
+
+        - name: cadvisor
+          #image: sylvaintremblay/cadvisor
+          image: sylvaintremblay/cadvisor-multiarch
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 300m
+              memory: 2000Mi
+            requests:
+              cpu: 150m
+              memory: 200Mi
+          volumeMounts:
+          - mountPath: /rootfs
+            name: rootfs
+            readOnly: true
+          - mountPath: /var/run
+            name: var-run
+            readOnly: true
+          - mountPath: /sys
+            name: sys
+            readOnly: true
+          - mountPath: /var/lib/docker
+            name: docker
+            readOnly: true
+          - mountPath: /dev/disk
+            name: disk
+            readOnly: true
+      serviceAccountName: cadvisor
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /
+        name: rootfs
+      - hostPath:
+          path: /var/run
+        name: var-run
+      - hostPath:
+          path: /sys
+        name: sys
+      - hostPath:
+          path: /var/lib/docker
+        name: docker
+      - hostPath:
+          path: /dev/disk
+        name: disk
