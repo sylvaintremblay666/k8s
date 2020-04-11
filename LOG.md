@@ -2,13 +2,6 @@
 
 Here, I'll try to keep a journal of what I'm doing on the cluster to help my poor aging failing memory :P. I won't write everything in there tho, the git history and the *READMEs* are there for this reason! :)
 
-## Between [2020 Mar 24] and [2020 Apr 10]
-As you can guess, I started writing this log on Apr 10th
-
-### Helm
-I installed _helm 3_ on _k8s-master_, see [README.md](./helm/README.md)
-
-
 ## [2020 Mar 23]
 The birth of the cluster!
 
@@ -60,3 +53,30 @@ $ sudo swapon --summary
 ```
 $ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 ```
+## Between [2020 Mar 24]
+
+### Helm
+I installed _helm 3_ package manager on _k8s-master_, see [README.md](./helm/README.md)
+
+### nfs_client_provisioner
+I needed something for persistent storage, went with the easy solution of `nfs_client_provisioner`. It creates folders for persistent storage on an already existing nfs shared folder. See [README](./helm/nfs_client_provisioner.md)
+
+## [2020 Apr 10]
+
+Well, looks like it's not gonna be easy to keep this up-to-date! Need more discipline :P
+
+- Started the git repo and my documentation efforts
+- Made cadvisor work! issues with the tags tho, something's not working properly, the TagOverride from the doc to parse docker_name isn't working so I'm not getting proper container / pod names for now...
+- Have my own multi-stage build for cadvisor, I will have to make it multi-arch (docker buildx) so it runs on the ARMv7 architecture too.
+- Almost nothing is pushed to GitHub yet, will work on that
+
+## [2020 Apr 11] (Saturday, easter week-end)
+
+- Spent lots of time working on cadvisor/scollector tags... Finally figured out the regex in the example wasn't right for what I am receiving in `docker_name` ...! Don't ask me why tho, no idea... seems like the format from the doc isn't the same as the one I'm getting with the latest versions I installed (I build scollector / cadvisor from the source when building my docker images). The regex is in the `scollector-daemonset.yaml` file (the config file is dynamically built on container startup, a variable is set to add the cadvisor config block in it)
+- To remove a tag from opentsdb connect to the opentsdb pod then
+```
+$ cd bin
+$ tsdb uid grep tagk <tag key> # to view the tag
+$ tsdb uid delete tagk <tag key> #
+```
+When done, to remove the tag from bosun, clear it's cache (restart it's container in my case as I'm using internal ledis without persistence)
