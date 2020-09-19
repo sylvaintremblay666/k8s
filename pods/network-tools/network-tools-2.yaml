@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: network-tools-2
+  labels:
+    app: network-tools
+spec:
+  containers:
+    - name: network-tools
+      image: praqma/network-multitool
+      command: ["/bin/bash", "-ec", "while :; do echo '.'; sleep 5 ; done"]
+  nodeSelector:
+    kubernetes.io/hostname: bigmonster

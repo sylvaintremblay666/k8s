@@ -81,5 +81,14 @@ if [ ! -e ${CONFIG_FILE} ]; then
     fi
 fi
 
+cat <<END >> ${CONFIG_FILE}
+${APPEND_CONTENT}
+END
+
+echo "------ Config: -----"
+cat ${CONFIG_FILE}
+echo "--------------------"
+
+
 # RUN scollector
 exec /go/bin/scollector ${OPTIONS}

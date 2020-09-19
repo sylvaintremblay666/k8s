@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  containers:
+    - name: grafana
+      #image: registry:5000/bosun
+      image: grafana/grafana
+      imagePullPolicy: Always
+#  nodeSelector:
+#    kubernetes.io/hostname: x3650

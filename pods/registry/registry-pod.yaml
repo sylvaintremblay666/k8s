@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registry
+  labels:
+    app: registry
+spec:
+  volumes:
+    - name: registry-storage
+      persistentVolumeClaim:
+        claimName: registry-volume
+  hostNetwork: true
+  containers:
+    - name: registry
+      image: registry:2
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: "/var/lib/registry"
+          name: registry-storage
+#  nodeSelector:
+#    kubernetes.io/hostname: x3650

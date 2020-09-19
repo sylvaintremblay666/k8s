@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: scollector
+  labels:
+    app: scollector
+spec:
+  hostNetwork: true
+  containers:
+    - name: scollector
+      #image: rohit01/scollector
+      image: sylvaintremblay/scollector-multiarch
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        privileged: true
+      env:
+      - name: "SC_CONF_Host"
+        #value: "opentsdb-opentsdb:4242"
+        value: "localhost:30666"
+        #      - name: "HOSTNAME"
+        #        valueFrom:
+        #          fieldRef:
+        #            fieldPath: spec.nodeName

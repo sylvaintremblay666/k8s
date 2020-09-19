@@ -87,3 +87,28 @@ When done, to remove the tag from bosun, clear it's cache (restart it's containe
 - Created my multi-arch image for cadvisor, 41.3MB total.
 
 I'm starting to get metrics on my stuff, that's really nice!! I need to create a persistent volume for my graphana and start creating dashboards :-) I will then need to deal with my logfiles! But I'm not there yet.
+
+## [2020 Apr 12] Happy Easter!
+
+- Destroyed / recreated opentsdb helm installation to reset all my data, worked well (be patient for the first start of all containers)
+- Realized cadvisor has been at some point integrated into kubelet, and is not anymore, this is not the way to monitor these days... but it's still used... Need to read more on the subject! Still, I'm happy I made this thing work as I wanted to experiment with these tools.
+- Found an interesting link on cadvisor: https://www.metricfire.com/blog/monitoring-docker-containers-with-cadvisor
+- Prometheus definitely seems to be the way to go, I'll spend some time reading on the web about what's the recommended monitoring stack these days.
+
+## [2020 Sep 19] Welcome back!
+
+Well, got into a big depression, stoped working for 4 months, and abandoned all my experiments. I restarted to work a month back, I getting better, and slowly finding interest back! Let's try to keep on with this project :)
+
+- Yesterday, I realized my opentsdb cluster wasn't happy, not properly working anymore. Networking and DNS issues.
+- The weave-network plugin wasn't working anymore on my k8s-master (arm) ! exiting in segfault...Doesn't help at all...!
+    - I tried to do an `rpi-update`, didn't fix anything.
+    - I changed iptables for the legacy one, didn't fix.
+      ```
+update-alternatives --set iptables /usr/sbin/iptables-legacy
+update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+```
+    - I downloaded the manifest for weave network (from : `https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')")`, downgraded the version to 2.6.0 (from 2.7.0) then it started working!
+- After that, realized I had DNS issues...
+- Found out that one of the coredns pod was booted on my k8s-master (arm) and wasn't working properly!
+  - I cordoned k8s-master, downscaled the deployment, re-scaled so both coredns are on my amd64 workers and it started working again!
+- My opentsdb cluster doesn't seem to want to work anymore tho :( Problem with the namenode / datanode... I may have broken something with the docker kill I did behind the scene...? Not sure... But I don't think I'll keep this setup, I should go with Prometheus instead. I may still give it a full reset just to see it work again before thrashing it :P We'll see how I feel :) 

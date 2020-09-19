@@ -40,6 +40,8 @@ spec:
             value: "localhost:30666"
           - name: "APPEND_CONTENT"
             value: >
+              LocalListener = "localhost:4455"
+
               [[Cadvisor]]
                 URL = "http://localhost:8080"
               

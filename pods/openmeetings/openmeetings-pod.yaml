@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: openmeetings
+  labels:
+    app: openmeetings
+spec:
+  containers:
+    - name: openmeetings
+      #image: registry:5000/bosun
+      image: apache/openmeetings:5.0.0-M3.1
+      imagePullPolicy: Always
+#  nodeSelector:
+#    kubernetes.io/hostname: x3650

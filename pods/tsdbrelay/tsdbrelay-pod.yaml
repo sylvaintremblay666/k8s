@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tsdbrelay
+  labels:
+    app: tsdbrelay
+spec:
+  containers:
+    - name: tsdbrelay
+      #image: registry:5000/bosun
+      image: yohlulz/tsdbrelay-alpine
+      imagePullPolicy: Always
+      command: ["tsdbrelay"]
+      args: ["-b", "bosun:8080", "-t", "opentsdb:4242"]
+#  nodeSelector:
+#    kubernetes.io/hostname: x3650

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bosun
+  labels:
+    app: bosun
+spec:
+  containers:
+    - name: bosun
+      #image: registry:5000/bosun
+      image: sylvaintremblay/bosun
+      imagePullPolicy: Always
+#  nodeSelector:
+#    kubernetes.io/hostname: x3650
