@@ -112,3 +112,11 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 - Found out that one of the coredns pod was booted on my k8s-master (arm) and wasn't working properly!
   - I cordoned k8s-master, downscaled the deployment, re-scaled so both coredns are on my amd64 workers and it started working again!
 - My opentsdb cluster doesn't seem to want to work anymore tho :( Problem with the namenode / datanode... I may have broken something with the docker kill I did behind the scene...? Not sure... But I don't think I'll keep this setup, I should go with Prometheus instead. I may still give it a full reset just to see it work again before thrashing it :P We'll see how I feel :) 
+- I deleted and re-created the cluster
+  ```
+# helm uninstall opentsdb
+# helm install opentsdb gradiant/opentsdb
+```
+  - All pods restarted on the same host... :( doesn't prove anything regarding my network, but it worked! Don't really know what was the issue but I guess I destroyed some data and I had mismatched IDs between datanode and namenode, something like that...
+- My bosun container was also not running, scollector was unable to send its metrics. Restarting it fixed the issue! It also started on the same host tho... I'll delete the pod and cordon x3650 to force a restart on bigmonster.
+  - Worked as expected, and collecting metrics still works, network seems happy :) 
