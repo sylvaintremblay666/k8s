@@ -1,0 +1,17 @@
+helm repo add gradiant https://gradiant.github.io/charts
+
+helm install  opentsdb gradiant/opentsdb
+
+NAME: opentsdb
+LAST DEPLOYED: Sun Mar 29 22:24:56 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+1. You can open access opentsdb CLI by running this command:
+   kubectl -n default exec -ti opentsdb-opentsdb-0 -- tsdb version
+
+2. Get description of opentsdb service:
+   kubectl -n default describe service opentsdb-opentsdb
+

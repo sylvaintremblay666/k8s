@@ -1,0 +1,20 @@
+helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+
+helm install zookeeper incubator/zookeeper
+
+helm install zk incubator/zookeeper
+NAME: zk
+LAST DEPLOYED: Sun Mar 29 15:50:00 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing ZooKeeper on your Kubernetes cluster. More information
+about ZooKeeper can be found at https://zookeeper.apache.org/doc/current/
+
+Your connection string should look like:
+  zk-zookeeper-0.zk-zookeeper-headless:2181,zk-zookeeper-1.zk-zookeeper-headless:2181,...
+
+You can also use the client service zk-zookeeper:2181 to connect to an available ZooKeeper server.
+

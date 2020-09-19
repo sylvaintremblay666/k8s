@@ -1,0 +1,29 @@
+stremblay@k8s-master:~ $ helm repo add gradiant https://gradiant.github.io/charts
+"gradiant" has been added to your repositories
+stremblay@k8s-master:~ $ helm install hbase gradiant/hbase
+NAME: hbase
+LAST DEPLOYED: Fri Mar 27 12:20:45 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. You can get an HBASE Shell by running this command:
+   kubectl exec -n default -it hbase-hbase-master-0 -- hbase shell 
+
+2. Inspect hbase master service ports with:
+   kubectl exec -n default describe service hbase-hbase-master
+
+3. Create a port-forward to the hbase manager UI:
+   kubectl port-forward -n default svc/hbase-hbase-master 16010:16010
+
+   Then open the ui in your browser:
+
+   open http://localhost:16010
+
+4. Create a port-forward to the hbase thrift manager UI:
+   kubectl port-forward -n default svc/hbase-hbase-master 9095:9095
+
+   Then open the ui in your browser:
+
+   open http://localhost:9095
+
