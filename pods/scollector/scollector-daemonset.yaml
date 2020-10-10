@@ -34,6 +34,10 @@ spec:
           imagePullPolicy: Always
           securityContext:
             privileged: true
+          volumeMounts:
+          - mountPath: /nodeCollectors
+            name: nodeCollectors
+            readOnly: true
           env:
           - name: "SC_CONF_Host"
             #value: "opentsdb-opentsdb:4242"
@@ -41,7 +45,9 @@ spec:
           - name: "APPEND_CONTENT"
             value: >
               LocalListener = "localhost:4455"
-
+              ColDir="/opt/scollector/collectors"
+              DisableSelf=true
+            
               [[Cadvisor]]
                 URL = "http://localhost:8080"
               
@@ -104,6 +110,9 @@ spec:
       - hostPath:
           path: /var/lib/docker
         name: docker
+      - hostPath:
+          path: /opt/scollector/collectors
+        name: nodeCollectors
       - hostPath:
           path: /dev/disk
         name: disk

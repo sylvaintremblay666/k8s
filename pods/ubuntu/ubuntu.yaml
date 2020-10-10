@@ -5,6 +5,7 @@ metadata:
         labels:
                 app: ubuntu
 spec:
+        hostname: ubuntu
         containers:
                 - name: ubuntu
                   image: ubuntu:latest
