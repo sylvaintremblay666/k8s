@@ -103,7 +103,7 @@ Well, got into a big depression, stoped working for 4 months, and abandoned all 
 - The weave-network plugin wasn't working anymore on my k8s-master (arm) ! exiting in segfault...Doesn't help at all...!
     - I tried to do an `rpi-update`, didn't fix anything.
     - I changed iptables for the legacy one, didn't fix.
-      ```
+```
 update-alternatives --set iptables /usr/sbin/iptables-legacy
 update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 ```
