@@ -120,6 +120,7 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
   - All pods restarted on the same host... :( doesn't prove anything regarding my network, but it worked! Don't really know what was the issue but I guess I destroyed some data and I had mismatched IDs between datanode and namenode, something like that...
 - My bosun container was also not running, scollector was unable to send its metrics. Restarting it fixed the issue! It also started on the same host tho... I'll delete the pod and cordon x3650 to force a restart on bigmonster.
   - Worked as expected, and collecting metrics still works, network seems happy :) 
+```
 
 ## [2020 Oct 10] Thanksgiving week-end, fkn' covid, but 4 days w-e is good
 
