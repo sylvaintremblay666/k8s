@@ -147,3 +147,66 @@ echo "{\"Metric\":\"rpi.temperature\",\"timestamp\":$(date +%s),\"value\":$(echo
 40.78
 ```
 The auto rate doesn't work tho, don't know why, may look into this later.
+
+## [2020 Oct 10] Thanksgiving week-end, fkn' covid, but 4 days w-e is good
+
+Got a new server this week-end!! Dell R820, mega monster! :P 
+
+Setup for K8S
+```
+    1  apt install apt-transport-https ca-certificates curl software-properties-common
+    3  apt update
+    5  apt upgrade
+    7  apt install gnupg-agent
+    8  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    9  apt-key fingerprint 0EBFCD88
+   10  sudo add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   11     $(lsb_release -cs) \
+   12     stable"
+   13  apt update
+   14  apt-get install docker-ce docker-ce-cli containerd.io
+   15  sysctl net.bridge.bridge-nf-call-iptables=1
+   20  usermod -aG docker stremblay
+   26  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main"   | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+   27  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+   28  apt update
+   29  apt-get install -y --allow-change-held-packages kubelet=1.18.0-00
+   30  apt-get install -y --allow-change-held-packages kubectl=1.18.0-00
+   31  apt-mark hold kubelet kubectl
+   32  apt-get install -y --allow-change-held-packages kubeadm=1.18.0-00
+   33  apt-mark hold kubeadm
+   34  apt-get install kubernetes-cni
+   35  vim /etc/fstab
+   36  swapon --summary
+   41  shutdown -r now
+   42  sysctl net.bridge.bridge-nf-call-iptables
+   44  vim /etc/hosts
+   45  systemctl status kubelet
+
+```
+
+Then run the join command with my proper token
+```
+kubeadm join 192.168.2.122:6443 --token <token> --discovery-token-ca-cert-hash sha256:<xxx>
+
+```
+
+And it failed! :-(
+```
+W1013 19:44:09.693410    7259 join.go:346] [preflight] WARNING: JoinControlPane.controlPlane settings will be ignored when control-plane flag is not set.
+[preflight] Running pre-flight checks
+        [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+error execution phase kubelet-start: cannot get Node "r820": nodes "r820" is forbidden: User "system:bootstrap:kzxvfn" cannot get resource "nodes" in API group "" at the cluster scope
+To see the stack trace of this error execute with --v=5 or higher
+```
+
+Looks like this is a problem with 1.18.0 ...!
+
+Workaround : on my master :
+```
+sudo kubeadm init phase bootstrap-token
+```
+join command again and it worked this time!
+
