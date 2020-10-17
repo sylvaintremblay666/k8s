@@ -97,7 +97,7 @@ I'm starting to get metrics on my stuff, that's really nice!! I need to create a
 
 ## [2020 Sep 19] Welcome back!
 
-Well, got into a big depression, stoped working for 4 months, and abandoned all my experiments. I restarted to work a month back, I getting better, and slowly finding interest back! Let's try to keep on with this project :)
+Well, got into health issues, stoped working for 4 months, and abandoned all my experiments. I restarted to work a month back, I getting better, and slowly finding interest back! Let's try to keep on with this project :)
 
 - Yesterday, I realized my opentsdb cluster wasn't happy, not properly working anymore. Networking and DNS issues.
 - The weave-network plugin wasn't working anymore on my k8s-master (arm) ! exiting in segfault...Doesn't help at all...!
@@ -210,3 +210,27 @@ sudo kubeadm init phase bootstrap-token
 ```
 join command again and it worked this time!
 
+## [2020 Oct 17] Week-end! Playing with the new r820
+
+I hooked the r820 to WCG and gave it 60% of all CPUs, as expected, it produces more than twice what bigmonster can do, it's a beast!! :-D 
+
+I'm running boinc like in docker directly for now (will probably create a pod for it at some point) 
+```
+docker run -d --name boinc --net=host --pid=host --cap-add SYS_PTRACE --security-opt apparmor:unconfined -v /opt/appdata/boinc/:/var/lib/boinc -e BOINC_GUI_RPC_PASSWORD=something -e BOINC_CMD_LINE_OPTIONS=--allow_remote_gui_rpc boinc/client
+```
+The `--cap-add` and `--security-opt` removed the apparmor error messages that were getting in my system logs every 10 seconds
+```
+[11879.936090] audit: type=1400 audit(1602891830.005:613845): apparmor="DENIED" operation="ptrace" profile="docker-default" pid=1813 comm="boinc" requested_mask="read" denied_mask="read" peer="unconfined"
+```
+
+I received my disks yesterday, 4 x [2.5" 600GB SAS 10K 6G](https://www.ebay.ca/itm/2-5-600GB-SAS-10K-6G-Hard-Drive-for-Dell-R610-R620-R630-R710-R720-R730-w-Tray/173137187910?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160908105057%26meid%3D10f76d2b717c40f1b7e6f58633027a52%26pid%3D100675%26rk%3D2%26rkt%3D15%26mehot%3Dnone%26sd%3D193708624043%26itm%3D173137187910%26pmt%3D1%26noa%3D1%26pg%3D2380057%26brand%3DHGST&_trksid=p2380057.c100675.m4236&_trkparms=pageci%3A439ca471-1071-11eb-a518-fe6c847433a7%7Cparentrq%3A3674bcd71750ad32d240800cfffd343a%7Ciid%3A1), yeah! :-) hooked'em up, booted, lsblk, no disks... (kinda expected) Let's go in the bios! 
+
+The disks are there, but I can't seem to find any way to set them in any kind of jbod mode, looks like I need to create a virtual disk. The controller is a PERC H710. After some research, I found out that my hypothesis was good, this card doesn't have any passthrough mode, it has to use it's hardware raid! And no ZFS with this, bad bad idea... You don't want to give an hardware raid-0 virtual disk to zfs, you want to give it direct access to the drive. So I created a RAID-6 with the disks for now, 1.2TB.
+
+Then, I thought about my old `DELL Precision T7500` in which I have an unused card able to do JBOD. After verification, it's a `PERC H310`, which is about the only DELL controller able to do JBOD, woohoo :-) I think I'll try it instead of the H710, we'll see!
+
+I changed the kubelet data folder to be on the new raid array, but I'll probably revert this to change the raid controller. I moved the data from `/var/lib/kubelet` into the new partition and symlinked the folder.
+
+I'm happy with how my [usb ssd]i(https://www.amazon.ca/gp/product/B07838LHNV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) is performing on [usb2](https://www.amazon.ca/gp/product/B0868G1QCB/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)! It's probably reading everything only once then it's all memory but still, it's doing the job quite well.
+
+That was yesterday, don't know exactly what I'll do on the setup today, we'll see :P
