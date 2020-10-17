@@ -23,19 +23,30 @@ The birth of the cluster!
 
 ##### Node1 [bigmonster]
 - Supermicro X9DAi/X9DAi custom build
-- 2x *Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz* [24 cores]
+- Dual CPU
+- 2x *Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz* [6 ht cores per cpu = 24 cores]
 - 128GB Ram
 - Root disk : [128GB SSD] *Crucial_CT128MX1* [ext4]
 - Data disks : 4x [2TB SATA 5400RPM] *WDC WD20EFRX-68E (RED)* [raidz1-0]
-- Ubuntu 18.04 bionic
+- Ubuntu 18.04.4 LTS bionic
 
 ##### Node2 [x3650]
-- IBM X3650 1U Server
-- 2x *Intel(R) Xeon(R) CPU X5660 @ 2.80GHz* [24 cores]
+- IBM X3650 2U Server
+- Dual CPU
+- 2x *Intel(R) Xeon(R) CPU X5660 @ 2.80GHz* [6 ht core per cpu = 24 cores]
 - 64GB Ram
 - Root disk : [146GB SAS 10k] *IBM MBD2147RC* [ext4]
 - Data disks : 5x [146GB SAS 15K] *Fujitsu MBE2147RC* [raidz1-0]
-- Ubuntu 18.04 bionic
+- Ubuntu 18.04.4 LTS bionic
+
+##### Node2 [x3650]
+- Dell PowerEdge R820 2U Server
+- Quad CPU (2 free sockets)
+- 2x *Intel(R) Xeon(R) CPU E5-4657L v2 @ 2.40GHz* [12 ht core per cpu = 48 cores]
+- 256GB Ram (max 3TB)
+- Root disk : [60GiB M-Sata3 SSD on USB2] *TCSunBow* [ext4]
+- Data disks : 4x [600GiB SAS 10K] *Hitachi HGST HUC109060CSS600* [raid6 on PERC H710]
+- Ubuntu 20.04.1 LTS focal
 
 ### Notes
 - As I'm starting to write this a couple weeks later, I already forgot some details about what I did precisely. For the installation of docker and k8s on the controller and the nodes, I followed some guides found on the web. It's no use to give more details about that here :)
