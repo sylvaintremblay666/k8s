@@ -231,6 +231,6 @@ Then, I thought about my old `DELL Precision T7500` in which I have an unused ca
 
 I changed the kubelet data folder to be on the new raid array, but I'll probably revert this to change the raid controller. I moved the data from `/var/lib/kubelet` into the new partition and symlinked the folder.
 
-I'm happy with how my [usb ssd]i(https://www.amazon.ca/gp/product/B07838LHNV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) is performing on [usb2](https://www.amazon.ca/gp/product/B0868G1QCB/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)! It's probably reading everything only once then it's all memory but still, it's doing the job quite well.
+I'm happy with how my [usb ssd](https://www.amazon.ca/gp/product/B07838LHNV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) is performing on [usb2](https://www.amazon.ca/gp/product/B0868G1QCB/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)! It's probably reading everything only once then it's all memory but still, it's doing the job quite well.
 
 That was yesterday, don't know exactly what I'll do on the setup today, we'll see :P
