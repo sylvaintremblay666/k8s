@@ -245,3 +245,180 @@ I changed the kubelet data folder to be on the new raid array, but I'll probably
 I'm happy with how my [usb ssd](https://www.amazon.ca/gp/product/B07838LHNV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) is performing on [usb2](https://www.amazon.ca/gp/product/B0868G1QCB/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)! It's probably reading everything only once then it's all memory but still, it's doing the job quite well.
 
 That was yesterday, don't know exactly what I'll do on the setup today, we'll see :P
+
+---
+
+### Did some disk benchmarking using fio
+
+#### R820 with mSATA disk on USB2
+```
+stremblay@r820:/var/lib/kubelet$ docker run --rm ljishen/fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=4G --readwrite=randrw --rwmixread=75
+Unable to find image 'ljishen/fio:latest' locally
+latest: Pulling from ljishen/fio
+5d20c808ce19: Pull complete
+423e0bac337b: Pull complete
+Digest: sha256:b2b4277c882e46e82358fcde3279ad2c98a7e535e693339df6ca4fd4b1addf3a
+Status: Downloaded newer image for ljishen/fio:latest
+test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.6
+Starting 1 process
+test: Laying out IO file (1 file / 4096MiB)
+
+test: (groupid=0, jobs=1): err= 0: pid=55: Sat Oct 17 18:22:29 2020
+   read: IOPS=668, BW=2675KiB/s (2739kB/s)(3070MiB/1175356msec)
+   bw (  KiB/s): min=    8, max= 4464, per=100.00%, avg=2693.21, stdev=1628.12, samples=2333
+   iops        : min=    2, max= 1116, avg=673.28, stdev=407.04, samples=2333
+  write: IOPS=223, BW=894KiB/s (915kB/s)(1026MiB/1175356msec)
+   bw (  KiB/s): min=    7, max= 1640, per=100.00%, avg=906.71, stdev=545.05, samples=2316
+   iops        : min=    1, max=  410, avg=226.65, stdev=136.28, samples=2316
+  cpu          : usr=0.95%, sys=4.66%, ctx=1048812, majf=0, minf=1904
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=785920,262656,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=2675KiB/s (2739kB/s), 2675KiB/s-2675KiB/s (2739kB/s-2739kB/s), io=3070MiB (3219MB), run=1175356-1175356msec
+  WRITE: bw=894KiB/s (915kB/s), 894KiB/s-894KiB/s (915kB/s-915kB/s), io=1026MiB (1076MB), run=1175356-1175356msec
+```
+
+#### BigMonster root disk
+```
+stremblay@bigmonster:/$ docker run --rm ljishen/fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=4G --readwrite=randrw --rwmixread=75
+test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.6
+Starting 1 process
+test: Laying out IO file (1 file / 4096MiB)
+
+test: (groupid=0, jobs=1): err= 0: pid=31: Sat Oct 17 18:05:53 2020
+   read: IOPS=24.5k, BW=95.8MiB/s (101MB/s)(3070MiB/32030msec)
+   bw (  KiB/s): min=21996, max=150768, per=99.90%, avg=98050.88, stdev=38221.21, samples=64
+   iops        : min= 5499, max=37692, avg=24512.70, stdev=9555.27, samples=64
+  write: IOPS=8200, BW=32.0MiB/s (33.6MB/s)(1026MiB/32030msec)
+   bw (  KiB/s): min= 7185, max=51264, per=99.90%, avg=32769.53, stdev=12782.07, samples=64
+   iops        : min= 1796, max=12816, avg=8192.31, stdev=3195.52, samples=64
+  cpu          : usr=10.04%, sys=50.79%, ctx=20629, majf=0, minf=13
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=785920,262656,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=95.8MiB/s (101MB/s), 95.8MiB/s-95.8MiB/s (101MB/s-101MB/s), io=3070MiB (3219MB), run=32030-32030msec
+  WRITE: bw=32.0MiB/s (33.6MB/s), 32.0MiB/s-32.0MiB/s (33.6MB/s-33.6MB/s), io=1026MiB (1076MB), run=32030-32030msec
+```
+
+#### BigMonster zfs pool
+```
+stremblay@bigmonster:/data$ docker run --rm ljishen/fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=4G --readwrite=randrw --rwmixread=75
+Unable to find image 'ljishen/fio:latest' locally
+latest: Pulling from ljishen/fio
+5d20c808ce19: Pull complete
+423e0bac337b: Pull complete
+Digest: sha256:b2b4277c882e46e82358fcde3279ad2c98a7e535e693339df6ca4fd4b1addf3a
+Status: Downloaded newer image for ljishen/fio:latest
+test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.6
+Starting 1 process
+test: Laying out IO file (1 file / 4096MiB)
+
+test: (groupid=0, jobs=1): err= 0: pid=31: Sat Oct 17 18:02:52 2020
+   read: IOPS=24.2k, BW=94.6MiB/s (99.2MB/s)(3070MiB/32444msec)
+   bw (  KiB/s): min=22944, max=149144, per=100.00%, avg=97199.19, stdev=40322.60, samples=64
+   iops        : min= 5736, max=37286, avg=24299.78, stdev=10080.65, samples=64
+  write: IOPS=8095, BW=31.6MiB/s (33.2MB/s)(1026MiB/32444msec)
+   bw (  KiB/s): min= 7168, max=50888, per=100.00%, avg=32481.13, stdev=13480.04, samples=64
+   iops        : min= 1792, max=12722, avg=8120.25, stdev=3369.99, samples=64
+  cpu          : usr=10.09%, sys=49.80%, ctx=18502, majf=0, minf=129
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=785920,262656,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=94.6MiB/s (99.2MB/s), 94.6MiB/s-94.6MiB/s (99.2MB/s-99.2MB/s), io=3070MiB (3219MB), run=32444-32444msec
+  WRITE: bw=31.6MiB/s (33.2MB/s), 31.6MiB/s-31.6MiB/s (33.2MB/s-33.2MB/s), io=1026MiB (1076MB), run=32444-32444msec
+```
+
+#### t5810
+```
+stremblay@t5810:~$ docker run --rm ljishen/fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=4G --readwrite=randrw --rwmixread=75
+test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.6
+Starting 1 process
+test: Laying out IO file (1 file / 4096MiB)
+
+test: (groupid=0, jobs=1): err= 0: pid=19: Sat Oct 17 17:58:50 2020
+   read: IOPS=9602, BW=37.5MiB/s (39.3MB/s)(3070MiB/81845msec)
+   bw (  KiB/s): min=   40, max=49392, per=100.00%, avg=38663.66, stdev=10168.71, samples=162
+   iops        : min=   10, max=12348, avg=9665.88, stdev=2542.17, samples=162
+  write: IOPS=3209, BW=12.5MiB/s (13.1MB/s)(1026MiB/81845msec)
+   bw (  KiB/s): min=    8, max=16952, per=100.00%, avg=13002.73, stdev=3256.79, samples=161
+   iops        : min=    2, max= 4238, avg=3250.65, stdev=814.19, samples=161
+  cpu          : usr=4.88%, sys=15.18%, ctx=1086402, majf=0, minf=5
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=785920,262656,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=37.5MiB/s (39.3MB/s), 37.5MiB/s-37.5MiB/s (39.3MB/s-39.3MB/s), io=3070MiB (3219MB), run=81845-81845msec
+  WRITE: bw=12.5MiB/s (13.1MB/s), 12.5MiB/s-12.5MiB/s (13.1MB/s-13.1MB/s), io=1026MiB (1076MB), run=81845-81845msec
+```
+
+### Changed the Perc H710 for a Perc H310
+
+Switched the card, immediately recognized, no issue. Went into the controller configuration, wiped the old raid config, switched the disks to `non-raid`, booted the system. It warned me about the card configuration change then booted without issue. Then, tada :
+```
+root@r820:/opt/MegaRAID/perccli# lsblk
+NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+loop0                       7:0    0    55M  1 loop /snap/core18/1880
+loop1                       7:1    0  55.3M  1 loop /snap/core18/1885
+loop2                       7:2    0  70.6M  1 loop /snap/lxd/16922
+loop3                       7:3    0  30.3M  1 loop /snap/snapd/9279
+loop4                       7:4    0    31M  1 loop /snap/snapd/9607
+loop5                       7:5    0  71.3M  1 loop /snap/lxd/16099
+sda                         8:0    0  55.9G  0 disk
+├─sda1                      8:1    0     1M  0 part
+├─sda2                      8:2    0     1G  0 part /boot
+└─sda3                      8:3    0  54.9G  0 part
+  └─ubuntu--vg-ubuntu--lv 253:0    0  27.5G  0 lvm  /
+sdb                         8:16   0 558.8G  0 disk
+sdc                         8:32   0 558.8G  0 disk
+sdd                         8:48   0 558.8G  0 disk
+sde                         8:64   0 558.8G  0 disk
+sr0                        11:0    1  1024M  0 rom
+```
+
+#### Perc H310 infos
+```
+root@r820:/opt/MegaRAID/perccli# !217
+./perccli64 show
+Status Code = 0
+Status = Success
+Description = None
+
+Number of Controllers = 1
+Host Name = r820
+Operating System  = Linux5.4.0-51-generic
+
+System Overview :
+===============
+
+----------------------------------------------------------------------------
+Ctl Model           Ports PDs DGs DNOpt VDs VNOpt BBU  sPR DS EHS ASOs Hlth
+----------------------------------------------------------------------------
+  0 PERCH310Adapter     8   4   0     0   0     0 Msng On  3  N      0 Opt
+----------------------------------------------------------------------------
+
+Ctl=Controller Index|DGs=Drive groups|VDs=Virtual drives|Fld=Failed
+PDs=Physical drives|DNOpt=DG NotOptimal|VNOpt=VD NotOptimal|Opt=Optimal
+Msng=Missing|Dgd=Degraded|NdAtn=Need Attention|Unkwn=Unknown
+sPR=Scheduled Patrol Read|DS=DimmerSwitch|EHS=Emergency Hot Spare
+Y=Yes|N=No|ASOs=Advanced Software Options|BBU=Battery backup unit
+Hlth=Health|Safe=Safe-mode boot
+```
