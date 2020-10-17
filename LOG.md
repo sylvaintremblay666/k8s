@@ -32,7 +32,7 @@ The birth of the cluster!
 - Data disks : 4x [2TB SATA 5400RPM] *WDC WD20EFRX-68E (RED)* [raidz1-0]
 - Ubuntu 18.04.4 LTS bionic
 
-##### Node2 [x3650]
+##### Node3 [r820]
 - IBM X3650 2U Server
 - Dual CPU
 - 2x *Intel(R) Xeon(R) CPU X5660 @ 2.80GHz* [6 ht core per cpu = 24 cores]
