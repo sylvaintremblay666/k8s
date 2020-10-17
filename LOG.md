@@ -422,3 +422,29 @@ sPR=Scheduled Patrol Read|DS=DimmerSwitch|EHS=Emergency Hot Spare
 Y=Yes|N=No|ASOs=Advanced Software Options|BBU=Battery backup unit
 Hlth=Health|Safe=Safe-mode boot
 ```
+
+### ZFS Time!
+Now that I have direct access to my physical drives, time for zfs :-)
+
+```
+# apt update
+# apt install zfsutils-linux
+root@r820:~# zfs --version
+zfs-0.8.3-1ubuntu12.4
+zfs-kmod-0.8.3-1ubuntu12.4
+
+
+t@r820:~# zpool create datapool raidz /dev/sdb /dev/sdc /dev/sdd /dev/sde
+invalid vdev specification
+use '-f' to override the following errors:
+/dev/sdb contains a filesystem of type 'LVM2_member'
+/dev/sdd contains a filesystem of type 'LVM2_member'
+/dev/sde contains a filesystem of type 'LVM2_member'
+root@r820:~# zpool create -f datapool raidz /dev/sdb /dev/sdc /dev/sdd /dev/sde
+root@r820:~# zpool list
+NAME       SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+datapool  2.17T   209K  2.17T        -         -     0%     0%  1.00x    ONLINE  -
+```
+And here's our pool! Raidz1 is enough for my needs.
+
+I'll create a LV for kubelet's data and symlink `/var/lib/kubelet` again.
