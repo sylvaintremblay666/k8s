@@ -159,7 +159,7 @@ echo "{\"Metric\":\"rpi.temperature\",\"timestamp\":$(date +%s),\"value\":$(echo
 ```
 The auto rate doesn't work tho, don't know why, may look into this later.
 
-## [2020 Oct 10] Thanksgiving week-end, fkn' covid, but 4 days w-e is good
+## [2020 Oct 12] New worker node in the cluster!! :-D
 
 Got a new server this week-end!! Dell R820, mega monster! :P 
 
