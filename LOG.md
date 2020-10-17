@@ -2,23 +2,25 @@
 
 Here, I'll try to keep a journal of what I'm doing on the cluster to help my poor aging failing memory :P. I won't write everything in there tho, the git history and the *READMEs* are there for this reason! :)
 
-## [2020 Mar 23]
-The birth of the cluster!
-
-#### Cluster Description
+## Cluster Description
 - K8s: 1.18.0
 - Docker: 19.3.8
 - hybrid architecture (controller on *ARM*, nodes on *AMD64*)
 - 1 controller and 3 nodes
 - [Weave Net](https://www.weave.works/products/weave-net/) networking
+- NFS Provisioner for persistent volumes
+- CPUs: 96 cores
+- Memory: 448GiB
 
+## [2020 Mar 23]
+The birth of the cluster!
 
 #### BMs
 ##### Controller [k8s-master]
-- Raspberry Pi 3B
-- *ARMv7 Processor rev 4 (v7l) @ 1.2GHz* [4 cores]
-- 1GB Ram
-- [120GB SSD] *Kingston ssdNOW uv300* via USB2 [ext4]
+- Raspberry Pi 4B Rev 1.1
+- *ARMv7 Processor rev 3 (v7l) @ 1.5GHz* [4 cores]
+- 4GB Ram
+- [120GB SSD] *Kingston ssdNOW uv300* via USB3 [ext4]
 - Raspbian 10 [buster]
 
 ##### Node1 [bigmonster]
