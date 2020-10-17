@@ -6,10 +6,10 @@ Here, I'll try to keep a journal of what I'm doing on the cluster to help my poo
 The birth of the cluster!
 
 #### Cluster Description
-- K8s: 1.17.4
+- K8s: 1.18.0
 - Docker: 19.3.8
 - hybrid architecture (controller on *ARM*, nodes on *AMD64*)
-- 1 controller and 2 nodes
+- 1 controller and 3 nodes
 - [Weave Net](https://www.weave.works/products/weave-net/) networking
 
 
