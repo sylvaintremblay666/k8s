@@ -525,3 +525,81 @@ How to configure:
       - name: "sdc1"
 ```
 
+### 10:18
+
+I did some move-around on x3650 to free the disks (backed-up data from the zfs pool, destroyed it, re-partitioned drives) then added sdb1 and sdc1 from x3650. The `osd-prepare` container started to crash-loop, I don't have the logs anymore but trying to create the OSD was crashing and exiting with an exception, something wasn't happy :( Then, the `osd-prepare` container disappeared and I had no clue on how to get it back. The operator log was continuously spitting 
+```
+Waiting on orchestration status update from 1 remaining nodes
+```
+
+I had the feeling something wasn't right with the partitions, did some searching and found the following [doc](https://rook.io/docs/rook/v1.4/ceph-teardown.html#zapping-devices) on cleaning the disks. I did the following on my disks :
+```
+# sgdisk --zap-all /dev/sdX
+```
+
+But I was still missing the `osd-prepare-x3650` container... I decided to reboot, just to see. The node disappearing kicked the operator in the ass and after it came back, all the containers went up properly, and the OSDs on x3650 have been successfully created, woohoo!! :-D
+```
+[root@rook-ceph-tools-6f77f8564f-9mx4n /]# ceph osd status
+ID  HOST    USED  AVAIL  WR OPS  WR DATA  RD OPS  RD DATA  STATE
+ 0  r820   1064M  98.9G      0        0       0        0   exists,up
+ 1  r820   1064M  98.9G      0        0       0        0   exists,up
+ 2  x3650  1064M  98.9G      0        0       0        0   exists,up
+```
+
+Ceph is now up for real, I will be able to try to create a volume!
+
+Thinking about it, I'm not sure I have the proper iSCSI packages installed on my nodes, need to check that first.
+
+### 11:31
+
+I searched about the iSCSI required packages and didn't found that back in the rook documentation pages... weird... anyway, let's don't care about this for now and try to use it!
+
+I added the 2nd partition on x3650 to the OSDs so there's now 4. 
+
+Found a really interesting [survival guide](https://www.cloudops.com/blog/the-ultimate-rook-and-ceph-survival-guide/), lots of infos which took me a long time to figure out is there, worth a read!
+
+Then, it was time to try it! There's an example storage class definition
+```
+csi/rdb/storageclass.yaml
+```
+It needed a little modification first, change `spec.relicated.size` to `2` instead of `3` as I currently have OSDs only on 2 nodes. Then, `kubectl create -f storageclass.yaml`. Went fine.
+
+Time for the real test now, create a PVC, see if it will work, then mount it in a pod. I used my classic `ubuntu` pod for this test.
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ubuntu-pv-claim
+  labels:
+    app: ubuntu
+spec:
+  storageClassName: rook-ceph-block
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu
+  labels:
+    app: ubuntu
+spec:
+  hostname: ubuntu
+  containers:
+  - name: ubuntu
+    image: ubuntu:latest
+    command: ["/bin/bash", "-ec", "while :; do echo '.'; sleep 5 ; done"]
+    volumeMounts:
+    - name: ubuntu-persistent-storage
+      mountPath: /data
+  volumes:
+  - name: ubuntu-persistent-storage
+    persistentVolumeClaim:
+      claimName: ubuntu-pv-claim
+```
+Worked like a charm!! :-D The PV is available in the POD! I created some files in the volume then cordoned the node where it was running and deleted the pod. Re-created it (on another node), it re-mounted the volume and the data was there! It works! :-)
+
+I will have to do some data moving on bigmonster to re-partition the drives there and create other OSDs.
