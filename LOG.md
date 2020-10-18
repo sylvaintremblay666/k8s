@@ -32,7 +32,7 @@ The birth of the cluster!
 - Data disks : 4x [2TB SATA 5400RPM] *WDC WD20EFRX-68E (RED)* [raidz1-0]
 - Ubuntu 18.04.4 LTS bionic
 
-##### Node3 [r820]
+##### Node2 [x3650]
 - IBM X3650 2U Server
 - Dual CPU
 - 2x *Intel(R) Xeon(R) CPU X5660 @ 2.80GHz* [6 ht core per cpu = 24 cores]
@@ -41,7 +41,7 @@ The birth of the cluster!
 - Data disks : 5x [146GB SAS 15K] *Fujitsu MBE2147RC* [raidz1-0]
 - Ubuntu 18.04.4 LTS bionic
 
-##### Node2 [x3650]
+##### Node3 [r820]
 - Dell PowerEdge R820 2U Server
 - Quad CPU (2 free sockets)
 - 2x *Intel(R) Xeon(R) CPU E5-4657L v2 @ 2.40GHz* [12 ht core per cpu = 48 cores]
