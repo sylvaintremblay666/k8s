@@ -448,3 +448,80 @@ datapool  2.17T   209K  2.17T        -         -     0%     0%  1.00x    ONLINE 
 And here's our pool! Raidz1 is enough for my needs.
 
 I'll create a LV for kubelet's data and symlink `/var/lib/kubelet` again.
+
+### 21:20
+
+I installed `rook-ceph` operator, it's almost magical, feels like cheating! hehe I don't have any disk or partition defined so no OSD (I think that's the right term but need to read more, ceph seems to be a whole world of its own!). After some reading, found out that zfs is not a good idea to use behind ceph. Partitions or raw block devices. I will try with r820 first, will destroy the zfs pool and partition the first sas disk to dedicate an empty partition and try to configure and use it. If it works, I'll partition all my disks in all the servers to give some space to ceph and zeep a zfs using as many disks as possible. 
+
+Not tonight tho, it's dodo time!
+
+## [2020 Oct 18] Experimenting with rook-ceph
+Finally, I continued a little more yesterday night before going to sleep. 
+- I destroyed my zfs pool on r820
+- Created 100GB partitions to dedicate to CEPH on sdb and sdc
+- Installed the provider
+```
+git clone --single-branch --branch v1.4.6 https://github.com/rook/rook.git
+cp -rp rook/cluster/examples/kubernetes/ceph ~/k8s/operators/rook-ceph
+cd ~/k8s/operators/rook-ceph
+kubectl create -f common.yaml
+kubectl create -f operator.yaml
+kubectl create -f cluster.yaml
+```
+it worked like a charm, after 8 minutes, a ceph cluster on all my nodes!
+```
+stremblay@t5810:~/k8s/operators/rook-ceph$ kubectl -n rook-ceph get pods
+NAME                                                   READY   STATUS      RESTARTS   AGE
+csi-cephfsplugin-2n9xm                                 3/3     Running     0          15h
+csi-cephfsplugin-clwlb                                 3/3     Running     0          15h
+csi-cephfsplugin-l82xg                                 3/3     Running     0          15h
+csi-cephfsplugin-provisioner-58c4f6c77f-2zd8c          6/6     Running     0          15h
+csi-cephfsplugin-provisioner-58c4f6c77f-wrq6n          6/6     Running     0          15h
+csi-rbdplugin-8j95q                                    3/3     Running     0          15h
+csi-rbdplugin-gqv9r                                    3/3     Running     0          15h
+csi-rbdplugin-provisioner-5c8c987c97-b4tx4             6/6     Running     0          15h
+csi-rbdplugin-provisioner-5c8c987c97-tqpd5             6/6     Running     0          15h
+csi-rbdplugin-xtdq9                                    3/3     Running     0          15h
+rook-ceph-crashcollector-bigmonster-868d76fdcd-b2t52   1/1     Running     0          15h
+rook-ceph-crashcollector-r820-b96498c78-5chvv          1/1     Running     0          15h
+rook-ceph-crashcollector-x3650-5cff7765d-jtlgz         1/1     Running     0          15h
+rook-ceph-mgr-a-7f7d779d55-xbjrv                       1/1     Running     0          15h
+rook-ceph-mon-a-75ccbb967f-9g7hs                       1/1     Running     0          15h
+rook-ceph-mon-b-856cdff445-m7lx6                       1/1     Running     0          15h
+rook-ceph-mon-c-8b7cd6fdc-w4rnj                        1/1     Running     0          15h
+rook-ceph-operator-59fd69bfd4-zlmrz                    1/1     Running     0          15h
+rook-ceph-osd-0-7bc45b584c-p7n5m                       1/1     Running     0          15m
+rook-ceph-osd-1-8b4b86cb9-lh6zq                        1/1     Running     0          15m
+rook-ceph-osd-prepare-bigmonster-98w28                 0/1     Completed   0          49m
+rook-ceph-osd-prepare-r820-jx8sr                       0/1     Completed   0          14m
+rook-ceph-osd-prepare-x3650-jmrkc                      0/1     Completed   0          49m
+rook-ceph-tools-6f77f8564f-9mx4n                       1/1     Running     0          11h
+rook-discover-b72fp                                    1/1     Running     0          15h
+rook-discover-nbxlj                                    1/1     Running     0          15h
+rook-discover-rmpph                                    1/1     Running     0          15h
+```
+But as expected, no OSD configured, no data disk / partition available. It will need a minimal configuration!
+
+I looked into `cluster.yaml` and found the section requiring modifications. It did not work at first as I was probably too tired and unable to read, was badly setting options. This morning, I got it to work! :-) The logs for the creation of the OSDs are in the `rook-ceph-osd-prepare-<nodename>-<id>` container for each node. When you re-apply the config, a new instance of this pod restarts, configure, then complete.
+
+How to configure:
+```
+  storage: # cluster level storage configuration and selection
+    useAllNodes: false
+    useAllDevices: false
+    #deviceFilter:
+    config:
+      # metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
+      # databaseSizeMB: "1024" # uncomment if the disks are smaller than 100 GB
+      # journalSizeMB: "1024"  # uncomment if the disks are 20 GB or smaller
+      # osdsPerDevice: "1" # this value can be overridden at the node or device level
+      # encryptedDevice: "true" # the default value for this option is "false"
+# Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
+# nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
+    nodes:
+    - name: "r820"
+      devices: # specific devices to use for storage can be specified for each node
+      - name: "sdb1"
+      - name: "sdc1"
+```
+
