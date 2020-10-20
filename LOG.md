@@ -449,6 +449,7 @@ And here's our pool! Raidz1 is enough for my needs.
 
 I'll create a LV for kubelet's data and symlink `/var/lib/kubelet` again.
 
+---
 ### 21:20
 
 I installed `rook-ceph` operator, it's almost magical, feels like cheating! hehe I don't have any disk or partition defined so no OSD (I think that's the right term but need to read more, ceph seems to be a whole world of its own!). After some reading, found out that zfs is not a good idea to use behind ceph. Partitions or raw block devices. I will try with r820 first, will destroy the zfs pool and partition the first sas disk to dedicate an empty partition and try to configure and use it. If it works, I'll partition all my disks in all the servers to give some space to ceph and zeep a zfs using as many disks as possible. 
@@ -525,6 +526,7 @@ How to configure:
       - name: "sdc1"
 ```
 
+---
 ### 10:18
 
 I did some move-around on x3650 to free the disks (backed-up data from the zfs pool, destroyed it, re-partitioned drives) then added sdb1 and sdc1 from x3650. The `osd-prepare` container started to crash-loop, I don't have the logs anymore but trying to create the OSD was crashing and exiting with an exception, something wasn't happy :( Then, the `osd-prepare` container disappeared and I had no clue on how to get it back. The operator log was continuously spitting 
@@ -550,6 +552,7 @@ Ceph is now up for real, I will be able to try to create a volume!
 
 Thinking about it, I'm not sure I have the proper iSCSI packages installed on my nodes, need to check that first.
 
+---
 ### 11:31
 
 I searched about the iSCSI required packages and didn't found that back in the rook documentation pages... weird... anyway, let's don't care about this for now and try to use it!
@@ -603,3 +606,26 @@ spec:
 Worked like a charm!! :-D The PV is available in the POD! I created some files in the volume then cordoned the node where it was running and deleted the pod. Re-created it (on another node), it re-mounted the volume and the data was there! It works! :-)
 
 I will have to do some data moving on bigmonster to re-partition the drives there and create other OSDs.
+
+---
+### 16:31
+
+I migrated my data
+- stoped kubelet on bigmonster
+- unshared the zfs fs
+- copied all the data from `/data/k8s-persistent-volumes` on the root disk
+- tried to destroy the pool, was refusing, still in use, blabla, rebooted
+- destroyed the pool
+- moved the copied data folder to `/data/k8s-persistent-volumes`
+- shared the folder
+- the nfs provisioner container was trying to create on r820 and stuck in containercreating... I drained r820, it restarted successfully on bigmonster, I uncordoned r820.
+- the nfs provisioner is back in shape, some opentsdb pods are still struggling but it's kinda usual, they'll probably stabilize by themselves... I'll let them some time, we'll see!
+
+So I have freed my disks, I'll be able to create some OSDs on bigmonster too and have a real 3 replica setup!
+
+---
+### 17:30 Don't forget to install nfs tools on node!!
+I was having issues with my opentsdb cluster unable to mount the nfs share for zookeeper... finally realized ubuntu server doesn't have nfs tools installed by default!
+```
+apt install nfs-kernel-server
+```
