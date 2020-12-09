@@ -629,3 +629,17 @@ I was having issues with my opentsdb cluster unable to mount the nfs share for z
 ```
 apt install nfs-kernel-server
 ```
+
+## [2020 Dec 09] Fixing r820
+Long time without update!
+
+I started to get issues with r820, don't know exactly why (short on disk space I think). Kubelet was throwing errors about image not available for a container, blabla, then segfault... This started quite some time ago. At that time, I deleted the container (a rook-ceph container). Then it complained again about another one... did the same trick for 3-4 containers, then kubelet finally stoped spitting errors and the node status went back to Ready. Worked for a few minutes then same thing started to happen again. I remember seeing errors related to disk pressure and my root disk is quite small.
+
+I then left that alone for a long time and looked back at it today.
+
+Decided to move `/var/lib/docker` on another filesystem. I created a 100GB partition on each of my 4 disks and a ZFS pool on them. Moved all the content of `/var/lib/docker` there and created a symlink. Then when I tried to start docker it failed!
+
+Looks like the overlay2 folder can't be on ZFS ! I copied it back on the rootfs and made symlinks for all other folders.
+
+Then starting kubelet gave me the same container/image errors and segfault. Deleted the first container giving errors, restarted. Did it for a second one then kubelet restarted properly! After some time, everything was back alive, even my ceph cluster!
+
