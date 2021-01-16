@@ -643,3 +643,18 @@ Looks like the overlay2 folder can't be on ZFS ! I copied it back on the rootfs 
 
 Then starting kubelet gave me the same container/image errors and segfault. Deleted the first container giving errors, restarted. Did it for a second one then kubelet restarted properly! After some time, everything was back alive, even my ceph cluster!
 
+## [2021 Jan 16] Happy new year!
+Have been sick like hell for the past few days but getting better now.
+
+I started using my iPad for my training software instead of my t7500 workstation thus I got a new machine available! :-) It's:
+
+- Dell precision T7500 Tower
+- Dual W5580 @ 3.20 GHZ (16 cores total)
+- 72GB Ram
+- 4 ATA Disks (1TiB, 1TiB, 500GiB, 250GiB)
+
+Enough for a cool node participating to the CEPH cluster! :-)
+
+Did a classic docker installation (https://docs.docker.com/engine/install/ubuntu/)
+
+Installed boinc, one more machine helping for COVID research!
